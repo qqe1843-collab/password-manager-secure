@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import (QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QPushButton, 
                            QTableWidget, QTableWidgetItem, QDialog, QLabel, QLineEdit, 
-                           QTextEdit, QMessageBox, QInputDialog, QHeaderView)
+                           QTextEdit, QMessageBox, QInputDialog, QHeaderView, QScrollArea)
 from PyQt5.QtCore import Qt
 from password_manager.storage import PasswordStorage
 
@@ -49,10 +49,14 @@ class PasswordManagerApp(QMainWindow):
         show_btn = QPushButton('👁️ Показать пароль')
         show_btn.clicked.connect(self.show_password)
         
+        help_btn = QPushButton('❓ Помощь')
+        help_btn.clicked.connect(self.show_help)
+        
         button_layout.addWidget(add_btn)
         button_layout.addWidget(edit_btn)
         button_layout.addWidget(delete_btn)
         button_layout.addWidget(show_btn)
+        button_layout.addWidget(help_btn)
         
         # Таблица паролей
         self.table = QTableWidget()
@@ -267,4 +271,99 @@ class PasswordManagerApp(QMainWindow):
         pwd = self.storage.get_password(entry_id, self.master_password)
         
         QMessageBox.information(self, f'Пароль для {pwd["site"]}', 
-                                f'Пароль: {pwd["password"]}');
+                                f'Пароль: {pwd["password"]}')
+    
+    def show_help(self):
+        """Показывает окно помощи"""
+        help_text = """
+🔐 PASSWORD MANAGER SECURE - СПРАВКА
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 ОСНОВНЫЕ ВОЗМОЖНОСТИ:
+
+1. 🔑 Главный пароль
+   • При первом запуске создайте надежный главный пароль
+   • Все последующие запуски потребуют его ввода
+   • ВАЖНО: Запомните пароль - восстановить его невозможно!
+
+2. ➕ Добавить пароль
+   • Нажмите кнопку "Добавить пароль"
+   • Заполните все обязательные поля:
+     - Сайт (название сервиса)
+     - Пользователь (логин/email)
+     - Пароль
+   • Заметки (необязательно) - добавьте комментарий
+   • Нажмите "Сохранить"
+
+3. ✏️ Редактировать пароль
+   • Выберите пароль в таблице (кликните на строку)
+   • Нажмите "Редактировать"
+   • Измените нужные данные
+   • Нажмите "Сохранить"
+
+4. 👁️ Показать пароль
+   • Выберите пароль в таблице
+   • Нажмите "Показать пароль"
+   • Пароль появится в всплывающем окне
+
+5. 🗑️ Удалить пароль
+   • Выберите пароль в таблице
+   • Нажмите "Удалить"
+   • Подтвердите удаление
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 БЕЗОПАСНОСТЬ:
+
+✓ Все пароли шифруются с помощью Fernet (AES-128)
+✓ Главный пароль защищен алгоритмом PBKDF2
+✓ Данные хранятся ТОЛЬКО локально на вашем компьютере
+✓ Никакая информация не отправляется в интернет
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💾 ДАННЫЕ:
+
+• Все пароли сохраняются в файл: passwords.json
+• Файл находится в папке приложения
+• Никогда не делитесь этим файлом с другими!
+• Регулярно делайте резервные копии
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚠️ ВАЖНЫЕ РЕКОМЕНДАЦИИ:
+
+1. Используйте СЛОЖНЫЕ главные пароли
+2. Не забывайте главный пароль
+3. Сохраняйте резервные копии passwords.json
+4. Регулярно обновляйте пароли в системе
+5. Никому не давайте доступ к главному паролю
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Версия: 1.0
+Разработано с ❤️ для безопасного хранения паролей
+        """
+        
+        dialog = QDialog(self)
+        dialog.setWindowTitle('❓ Помощь - Password Manager Secure')
+        dialog.setGeometry(150, 100, 600, 700)
+        
+        layout = QVBoxLayout()
+        
+        # Создаем текст с прокруткой
+        text_widget = QTextEdit()
+        text_widget.setText(help_text)
+        text_widget.setReadOnly(True)
+        text_widget.setStyleSheet("QTextEdit { font-family: monospace; }")
+        
+        layout.addWidget(text_widget)
+        
+        # Кнопка закрытия
+        close_btn = QPushButton('Закрыть')
+        close_btn.clicked.connect(dialog.close)
+        layout.addWidget(close_btn)
+        
+        dialog.setLayout(layout)
+        dialog.exec_()
