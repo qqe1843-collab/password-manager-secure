@@ -1,0 +1,47 @@
+# GitHub Actions - Автоматическая сборка EXE файла
+
+name: Build EXE
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements-build.txt
+    
+    - name: Build EXE
+      run: |
+        pyinstaller --onefile --windowed --name="PasswordManagerSecure" --distpath "./dist" --buildpath "./build" --specpath "./build" main.py
+    
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: PasswordManagerSecure-exe
+        path: dist/PasswordManagerSecure.exe
+    
+    - name: Create Release
+      if: success()
+      uses: softprops/action-gh-release@v1
+      with:
+        files: dist/PasswordManagerSecure.exe
+        tag_name: v1.0
+        name: Password Manager Secure v1.0
+        body: |
+          🔐 Password Manager Secure v1.0 - Готовый EXE файл!
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
