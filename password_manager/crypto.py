@@ -25,7 +25,6 @@ class PasswordCrypto:
             length=32,
             salt=salt,
             iterations=PasswordCrypto.ITERATIONS,
-            backend=default_backend()
         )
         
         key = base64.urlsafe_b64encode(kdf.derive(master_password.encode()))
